@@ -5,7 +5,6 @@ namespace ChallengeDor.Data
 {
     public class DataContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
         public DbSet<BlogPost> BlogPosts { get; set; }
         public DbSet<BlogComment> BlogComments { get; set; }
 

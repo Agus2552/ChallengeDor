@@ -1,5 +1,6 @@
 ﻿using ChallengeDor.Data;
 using ChallengeDor.Models;
+using ChallengeDor.Services.BlogCommentService;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,9 +9,11 @@ namespace ChallengeDor.Services.BlogPostService
     public class BlogPostService : IBlogPostService
     {
         private readonly DataContext _context;
-        public BlogPostService(DataContext context)
+        private readonly IBlogCommentService _blogCommentService;
+        public BlogPostService(DataContext context, IBlogCommentService blogCommentService)
         {
             _context = context;
+            _blogCommentService = blogCommentService;
         }
         public async Task<ServiceResponse<BlogPost>> CreateBlogPost(BlogPost entity)
         {
@@ -53,16 +56,22 @@ namespace ChallengeDor.Services.BlogPostService
         {
             var response = new ServiceResponse<BlogPost>();
 
-            var deposito = await _context.BlogPosts.Where(d => !d.Deleted).FirstOrDefaultAsync(d => d.Id == id);
-            if (deposito == null)
+            var blogPost = await _context.BlogPosts.Where(d => !d.Deleted).FirstOrDefaultAsync(d => d.Id == id);
+            if (blogPost == null)
             {
                 response.Code = "1";
                 response.Message = $"BlogPost with Id = {id} not found.";
             }
             else
             {
+                var comments = await _blogCommentService.GetBlogCommentsForPost(id);
+                if(comments != null)
+                {
+                    blogPost.Comments = comments.Data;
+                }
+
                 response.Code = "0";
-                response.Data = deposito;
+                response.Data = blogPost;
                 response.Message = "Success.";
             }
 
@@ -71,10 +80,20 @@ namespace ChallengeDor.Services.BlogPostService
 
         public async Task<ServiceResponse<List<BlogPost>>> GetBlogPosts()
         {
+            var blogPosts = await _context.BlogPosts.Where(d => !d.Deleted).ToListAsync();
+
+            foreach (var blogPost in blogPosts)
+            {
+                var comments = await _blogCommentService.GetBlogCommentsForPost(blogPost.Id);
+                if (comments != null)
+                {
+                    blogPost.Comments = comments.Data;
+                }
+            }
             var response = new ServiceResponse<List<BlogPost>>
             {
                 Code = "0",
-                Data = await _context.BlogPosts.Where(d => !d.Deleted).ToListAsync() ,
+                Data =  blogPosts,
                 Message = "Success."
             };
 
@@ -94,7 +113,7 @@ namespace ChallengeDor.Services.BlogPostService
             }
             else
             {
-                // Adjuntar la entidad existente al contexto
+                entity.UpdatedAt = DateTime.Now;
                 _context.Entry(existingEntity).CurrentValues.SetValues(entity);
 
                 await _context.SaveChangesAsync();

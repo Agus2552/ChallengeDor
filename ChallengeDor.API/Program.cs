@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen();
 
 //Services
 builder.Services.AddScoped<IBlogPostService, BlogPostService>();
-
+builder.Services.AddScoped<IBlogCommentService, BlogCommentService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

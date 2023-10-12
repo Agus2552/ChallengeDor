@@ -11,8 +11,4 @@
     <ProjectReference Include="..\ChallengeDor.Models\ChallengeDor.Models.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="BlogCommentService\" />
-  </ItemGroup>
-
 </Project>

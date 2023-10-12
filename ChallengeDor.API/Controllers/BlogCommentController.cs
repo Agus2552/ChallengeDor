@@ -4,24 +4,26 @@ namespace ChallengeDor.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class BlogPostController : ControllerBase
+
+    public class BlogCommentController : ControllerBase
     {
-        private readonly IBlogPostService _blogPostService;
-        public BlogPostController(IBlogPostService blogPostService)
+        private readonly IBlogCommentService _blogCommentService;
+        public BlogCommentController(IBlogCommentService blogCommentService)
         {
-            _blogPostService = blogPostService;
+            _blogCommentService = blogCommentService;
         }
 
         [ProducesResponseType(200)]
-        [HttpGet("GetAllBlogPosts")]
-        public async Task<ActionResult<ServiceResponse<List<BlogPost>>>> GetAll() {
+        [HttpGet("GetAllPostCommentsForPost/{id:int}")]
+        public async Task<ActionResult<ServiceResponse<List<BlogComment>>>> GetAllCommentsForPost(int id)
+        {
             try
             {
-                return Ok(await _blogPostService.GetBlogPosts());
+                return Ok(await _blogCommentService.GetBlogCommentsForPost(id));
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ServiceResponse<List<BlogPost>>
+                return StatusCode(StatusCodes.Status500InternalServerError, new ServiceResponse<List<BlogComment>>
                 {
                     Message = ex.Message
                 });
@@ -29,12 +31,12 @@ namespace ChallengeDor.API.Controllers
         }
 
         [ProducesResponseType(200)]
-        [HttpGet("GetBlogPost/{id:int}")]
-        public async Task<ActionResult<ServiceResponse<BlogPost>>> Get(int id)
+        [HttpGet("GetPostComment/{id:int}")]
+        public async Task<ActionResult<ServiceResponse<BlogComment>>> Get(int id)
         {
             try
             {
-                var result = await _blogPostService.GetBlogPost(id);
+                var result = await _blogCommentService.GetBlogComment(id);
 
                 if (result.Code == "1")
                 {
@@ -45,7 +47,7 @@ namespace ChallengeDor.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ServiceResponse<List<BlogPost>>
+                return StatusCode(StatusCodes.Status500InternalServerError, new ServiceResponse<List<BlogComment>>
                 {
                     Message = ex.Message
                 });
@@ -53,18 +55,18 @@ namespace ChallengeDor.API.Controllers
         }
 
         [ProducesResponseType(201)]
-        [HttpPost("CreateBlogPost")]
-        public async Task<ActionResult<ServiceResponse<BlogPost>>> Create(BlogPost blogPost)
+        [HttpPost("CreatePostComment")]
+        public async Task<ActionResult<ServiceResponse<BlogComment>>> Create(BlogComment blogComment)
         {
             try
             {
-                var result = await _blogPostService.CreateBlogPost(blogPost);
+                var result = await _blogCommentService.CreateBlogComment(blogComment);
 
-                return CreatedAtAction(nameof(GetAll), new { id = blogPost.Id }, result);
+                return CreatedAtAction(nameof(GetAllCommentsForPost), new { id = blogComment.Id }, result);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ServiceResponse<BlogPost>
+                return StatusCode(StatusCodes.Status500InternalServerError, new ServiceResponse<BlogComment>
                 {
                     Message = ex.Message
                 });
@@ -72,12 +74,12 @@ namespace ChallengeDor.API.Controllers
         }
 
         [ProducesResponseType(200)]
-        [HttpPut("UpdateBlogPost")]
-        public async Task<ActionResult<ServiceResponse<BlogPost>>> Update(BlogPost blogPost)
+        [HttpPut("UpdatePostComment")]
+        public async Task<ActionResult<ServiceResponse<BlogComment>>> Update(BlogComment blogComment)
         {
             try
             {
-                var result = await _blogPostService.UpdateBlogPost(blogPost);
+                var result = await _blogCommentService.UpdateBlogComment(blogComment);
 
                 if (result.Code == "1")
                 {
@@ -89,7 +91,7 @@ namespace ChallengeDor.API.Controllers
             catch (Exception ex)
             {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, new ServiceResponse<BlogPost>
+                return StatusCode(StatusCodes.Status500InternalServerError, new ServiceResponse<BlogComment>
                 {
                     Message = ex.Message
                 });
@@ -97,12 +99,12 @@ namespace ChallengeDor.API.Controllers
         }
 
         [ProducesResponseType(204)]
-        [HttpDelete("DeleteBlogPost/{id:int}")]
+        [HttpDelete("DeletePostComment/{id:int}")]
         public async Task<ActionResult<ServiceResponse<bool>>> Delete(int id)
         {
             try
             {
-                var result = await _blogPostService.DeleteBlogPost(id);
+                var result = await _blogCommentService.DeleteBlogComment(id);
 
                 if (result.Code == "1")
                 {
